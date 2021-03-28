@@ -350,6 +350,9 @@ class ResponsiveUnit extends Component {
       if ($context['fields']['image'] && $context['fields']['link']) {
         $context['classList'] .= ' inherit-link';
       }`
+      },
+      hasimagetextoverlay: {
+        status: this.state.hasimagetextoverlay
       }
     }
   ) {
@@ -358,7 +361,9 @@ class ResponsiveUnit extends Component {
       `
       <?php 
       ${(() => {
-        return include.image.status ? include.image.code : "";
+        return include.image.status && include.hasimagetextoverlay.status
+          ? include.image.code
+          : "";
       })()}
 
       ${(() => {
@@ -401,6 +406,60 @@ class ResponsiveUnit extends Component {
     return buildString;
   }
 
+  buildZeusFontString(
+    include = {
+      organism: {
+        name: this.state.organismName
+      },
+      title: {
+        status: this.state.hastitle,
+        code:
+          `.font` +
+          this.state.titlesize +
+          ` {
+          @include font-size(` +
+          this.state.titlesize +
+          `px, 38px, ` +
+          this.state.titlesize +
+          `px, ` +
+          this.state.titlesize +
+          `px, 1.2); // 14px
+          display: inline-block;
+      };`
+      },
+      text: {
+        status: this.state.hastext,
+        code:
+          `.font` +
+          this.state.fontsize +
+          ` {
+          @include font-size(` +
+          this.state.fontsize +
+          `px, 38px, ` +
+          this.state.fontsize +
+          `px, ` +
+          this.state.fontsize +
+          `px, 1.2); // 14px
+          display: inline-block;
+      };`
+      }
+    }
+  ) {
+    let buildString = "";
+    buildString += dedent(
+      `
+      ${(() => {
+        return include.title.status ? include.title.code : "";
+      })()}
+
+      ${(() => {
+        return include.text.status ? include.text.code : "";
+      })()}
+      `
+    );
+    return buildString;
+  }
+
   resizeHandle(event, data) {}
 
   render() {
@@ -408,6 +467,8 @@ class ResponsiveUnit extends Component {
     const zeusHtmlString = this.buildZeusHtmlString();
     const zeusGutenbergRegister = this.buildZeusGutenbergString();
     const zeusPHPString = this.buildZeusPhpString();
+    const zeusFontString = this.buildZeusFontString();
+
     return (
       <div>
         <div className="menuButton" onClick={this.handleFormatterState}>
@@ -599,24 +660,50 @@ class ResponsiveUnit extends Component {
               <Tab>Vanilla</Tab>
             </TabList>
             <TabPanel>
-              <div className="importName">
-                @import 'organisms/{this.state.organismName}';
+              <div className="titleContainer">
+                <div className="importName">
+                  @import 'organisms/{this.state.organismName}';
+                </div>
+                <div className="fileName">_{this.state.organismName}.scss</div>
               </div>
-              <div className="fileName">_{this.state.organismName}.scss</div>
               <SyntaxHighlighter language="css" style={hybrid}>
                 {zeusCssString}
               </SyntaxHighlighter>
-              <div className="fileName">{this.state.organismName}.twig</div>
+              <div className="titleContainer">
+                <div className="importName">
+                  views/organisms/{this.state.organismName}.twig
+                </div>
+                <div className="fileName">{this.state.organismName}.twig</div>
+              </div>
               <SyntaxHighlighter language="javascript" style={hybrid}>
                 {zeusHtmlString}
               </SyntaxHighlighter>
-              <div className="fileName">{this.state.organismName}.php</div>
+              <div className="titleContainer">
+                <div className="importName">
+                  templates/organisms/{this.state.organismName}.php
+                </div>
+                <div className="fileName">{this.state.organismName}.php</div>
+              </div>
               <SyntaxHighlighter language="php" style={hybrid}>
                 {zeusPHPString}
               </SyntaxHighlighter>
-              <div className="fileName">Gutenberg Component (register.php)</div>
+              <div className="titleContainer">
+                <div className="importName">
+                  templates/register/register.php
+                </div>
+                <div className="fileName">
+                  Gutenberg Component (register.php)
+                </div>
+              </div>
               <SyntaxHighlighter language="php" style={hybrid}>
                 {zeusGutenbergRegister}
+              </SyntaxHighlighter>
+              <div className="titleContainer">
+                <div className="importName">@import 'fonts/_fonts.scss';</div>
+                <div className="fileName">Render Fonts</div>
+              </div>
+              <SyntaxHighlighter language="css" style={hybrid}>
+                {zeusFontString}
               </SyntaxHighlighter>
             </TabPanel>
             <TabPanel>Wordpress</TabPanel>

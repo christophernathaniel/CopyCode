@@ -4,8 +4,19 @@ input {
   min-width: 0;
 }
 
+.titleContainer {
+  border-top: 1px solid #151515;
+  border-bottom: 1px solid #151515;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
 .importName {
   font-size: 11px;
+}
+
+.fileName {
+  margin-top: 2px;
 }
 
 .form-container {
@@ -16,12 +27,24 @@ input {
   bottom: 0px;
   top: 0px;
   z-index: 98;
+  padding: 20px;
+  color: #fff;
+  overflow: hidden;
+  overflow-y: scroll;
 }
 
 .form-container label {
   display: flex;
   width: 100%;
   margin: 20px 0;
+}
+
+.form-container input {
+  background-color: #000;
+  border: none;
+  color: #fff;
+  padding: 3px 5px;
+  font-size: 13px;
 }
 
 .form-container label span {
