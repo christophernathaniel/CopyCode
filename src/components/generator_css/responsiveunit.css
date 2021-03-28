@@ -4,6 +4,10 @@ input {
   min-width: 0;
 }
 
+.importName {
+  font-size: 11px;
+}
+
 .form-container {
   position: fixed;
   left: 0px;

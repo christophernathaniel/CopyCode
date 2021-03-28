@@ -24,6 +24,14 @@ class ResponsiveUnit extends Component {
       unit: "px",
       isloop: false,
       iscolumn: false,
+      titlesize: 50,
+      fontsize: 18,
+      hassubtitle: true,
+      hastitle: true,
+      hastext: true,
+      hasform: false,
+      hasimage: true,
+      hasimagetextoverlay: false,
       formatter: false
     };
 
@@ -123,6 +131,35 @@ class ResponsiveUnit extends Component {
         end: `\n</div>`,
         singlestart: `\n <div class="wp-block column">`,
         singleend: `\n </div>`
+      },
+      button: {
+        status: this.state.hasbutton,
+        // code: `<span class="atom-button">
+        //     <a class="button" href="#"></a>
+        // </span>`
+        code: `{% include 'atoms/button.twig' %}`
+      },
+      title: {
+        status: this.state.hastitle,
+        code:
+          `{% include 'atoms/text.twig' with { 'font' : 'font` +
+          this.state.titlesize +
+          ` document-title-font', 'content' : 'Title Text' } %}`
+      },
+      text: {
+        status: this.state.hastext,
+        code:
+          `{% include 'atoms/text.twig' with { 'font' : 'font` +
+          this.state.fontsize +
+          ` document-text-font', 'content' : 'Content Text' } %}`
+      },
+      image: {
+        status: this.state.hasimage,
+        code: `{% include 'atoms/image.twig' %}`
+      },
+      form: {
+        status: this.state.hasform,
+        code: `{% include "/atoms/gform.twig"  %}`
       }
     }
   ) {
@@ -144,23 +181,27 @@ class ResponsiveUnit extends Component {
 
     <div class="` +
         include.organism.name +
-        `" data-type="organism">
-      <div class="molecule-image">
-        <div class="atom-image">
-
+        " {{ classList }}" +
+        `" data-type="organism"  data-template="` +
+        include.organism.name +
+        `.twig">
+        ${(() => {
+          return include.image.status ? include.image.code : "";
+        })()}
+        ${(() => {
+          return include.form.status ? include.form.code : "";
+        })()}
+        <div class="inner">
+        ${(() => {
+          return include.title.status ? include.title.code : "";
+        })()}
+        ${(() => {
+          return include.text.status ? include.text.code : "";
+        })()}
+        ${(() => {
+          return include.button.status ? include.button.code : "";
+        })()}
         </div>
-      </div>
-      <div class="inner">
-        <div class="title">
-          <span class="font font48 document-title-font"></span>
-        </div>
-        <div class="text">
-          <span class="font font48 document-regular-font"></span>
-        </div>
-        <span class="atom-button">
-          <a class="button" href="#"></a>
-        </span>
-      </div>
     </div>
       ${(() => {
         return include.columns.status ? include.columns.singleend : "";
@@ -180,6 +221,28 @@ class ResponsiveUnit extends Component {
     include = {
       organism: {
         name: this.state.organismName
+      },
+      button: {
+        status: this.state.hasbutton,
+        code: `
+        a { 
+          color: $blue;
+        
+          &:hover {
+            color: $white;
+          }
+        }`
+      },
+      hasimagetextoverlay: {
+        status: this.state.hasimagetextoverlay,
+        code: `
+        .text-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          bottom: 0;
+        }`,
+        organismCode: `position: relative;`
       }
     }
   ) {
@@ -194,7 +257,18 @@ class ResponsiveUnit extends Component {
       display: flex; 
       justify-content: flex-start; 
       align-items: flex-start; 
+      `);
+
+    buildString += `\n`;
+
+    buildString += dedent(`
+    ${(() => {
+      return include.hasimagetextoverlay.status
+        ? include.hasimagetextoverlay.organismCode
+        : "";
+    })()} 
     `);
+
     buildString += `\n\n`;
 
     // Responsive Units
@@ -212,7 +286,8 @@ class ResponsiveUnit extends Component {
         this.state.pxHeightValue +
         `px, ` +
         this.state.pxHeightValue +
-        `px); `
+        `px); 
+       `
     );
     buildString += `\n\n`;
     // Flex
@@ -233,18 +308,67 @@ class ResponsiveUnit extends Component {
     // Link
     buildString += dedent(
       `
-      a { 
-      color: $blue;
+      ${(() => {
+        return include.hasimagetextoverlay.status
+          ? include.hasimagetextoverlay.code
+          : "";
+      })()} 
+    `
+    );
 
-      &:hover {
-        color: $white;
-      }
-    }
+    buildString += `\n\n`;
+
+    // Link
+    buildString += dedent(
+      `
+      ${(() => {
+        return include.button.status ? include.button.code : "";
+      })()} 
     `
     );
     buildString += `\n`;
     buildString += dedent(`}`);
 
+    return buildString;
+  }
+
+  buildZeusPhpString(
+    include = {
+      organism: {
+        name: this.state.organismName
+      },
+      image: {
+        status: this.state.hasimage,
+        code: `
+      if ($context['fields']['image']) {
+        $context['classList'] .= ' dark-block';
+      }`
+      },
+      button: {
+        status: this.state.hasbutton,
+        code: `
+      if ($context['fields']['image'] && $context['fields']['link']) {
+        $context['classList'] .= ' inherit-link';
+      }`
+      }
+    }
+  ) {
+    let buildString = "";
+    buildString += dedent(
+      `
+      <?php 
+      ${(() => {
+        return include.image.status ? include.image.code : "";
+      })()}
+
+      ${(() => {
+        return include.image.status && include.button.status
+          ? include.button.code
+          : "";
+      })()}
+
+    `
+    );
     return buildString;
   }
 
@@ -283,6 +407,7 @@ class ResponsiveUnit extends Component {
     const zeusCssString = this.buildZeusCssString();
     const zeusHtmlString = this.buildZeusHtmlString();
     const zeusGutenbergRegister = this.buildZeusGutenbergString();
+    const zeusPHPString = this.buildZeusPhpString();
     return (
       <div>
         <div className="menuButton" onClick={this.handleFormatterState}>
@@ -336,6 +461,26 @@ class ResponsiveUnit extends Component {
                   placeholder="Aspect Ratio"
                 />
               </label>
+              <label className="aspectRatio">
+                <span>Title Size</span>
+                <input
+                  type="text"
+                  id="titlesize"
+                  onChange={this.handleInputChange}
+                  value={this.state.titlesize}
+                  placeholder="Title Size"
+                />
+              </label>
+              <label className="aspectRatio">
+                <span>Font Size</span>
+                <input
+                  type="text"
+                  id="fontsize"
+                  onChange={this.handleInputChange}
+                  value={this.state.fontsize}
+                  placeholder="Font Size"
+                />
+              </label>
               <label className="isLoop">
                 <span>Is Loop</span>
                 <input
@@ -355,6 +500,72 @@ class ResponsiveUnit extends Component {
                   checked={this.state.iscolumn}
                   value={this.state.iscolumn}
                   placeholder="isColumn"
+                />
+              </label>
+              <label className="isColumn">
+                <span>Has Title</span>
+                <input
+                  type="checkbox"
+                  id="hastitle"
+                  onChange={this.handleCheckbox}
+                  checked={this.state.hastitle}
+                  value={this.state.hastitle}
+                  placeholder="hastitle"
+                />
+              </label>
+              <label className="isColumn">
+                <span>Has Text</span>
+                <input
+                  type="checkbox"
+                  id="hastext"
+                  onChange={this.handleCheckbox}
+                  checked={this.state.hastext}
+                  value={this.state.hastext}
+                  placeholder="hastext"
+                />
+              </label>
+              <label className="isColumn">
+                <span>Has Button</span>
+                <input
+                  type="checkbox"
+                  id="hasbutton"
+                  onChange={this.handleCheckbox}
+                  checked={this.state.hasbutton}
+                  value={this.state.hasbutton}
+                  placeholder="hasbutton"
+                />
+              </label>
+              <label className="isColumn">
+                <span>Has Image</span>
+                <input
+                  type="checkbox"
+                  id="hasimage"
+                  onChange={this.handleCheckbox}
+                  checked={this.state.hasimage}
+                  value={this.state.hasimage}
+                  placeholder="hasimage"
+                />
+              </label>
+              <label className="isColumn">
+                <span>Has Image Text Overlay</span>
+                <input
+                  type="checkbox"
+                  id="hasimagetextoverlay"
+                  onChange={this.handleCheckbox}
+                  checked={this.state.hasimagetextoverlay}
+                  value={this.state.hasimagetextoverlay}
+                  placeholder="hasimagetextoverlay"
+                />
+              </label>
+              <label className="isColumn">
+                <span>Has Form</span>
+                <input
+                  type="checkbox"
+                  id="hasform"
+                  onChange={this.handleCheckbox}
+                  checked={this.state.hasform}
+                  value={this.state.hasform}
+                  placeholder="hasform"
                 />
               </label>
             </form>
@@ -388,6 +599,9 @@ class ResponsiveUnit extends Component {
               <Tab>Vanilla</Tab>
             </TabList>
             <TabPanel>
+              <div className="importName">
+                @import 'organisms/{this.state.organismName}';
+              </div>
               <div className="fileName">_{this.state.organismName}.scss</div>
               <SyntaxHighlighter language="css" style={hybrid}>
                 {zeusCssString}
@@ -397,7 +611,10 @@ class ResponsiveUnit extends Component {
                 {zeusHtmlString}
               </SyntaxHighlighter>
               <div className="fileName">{this.state.organismName}.php</div>
-              <div className="fileName">Gutenberg Component</div>
+              <SyntaxHighlighter language="php" style={hybrid}>
+                {zeusPHPString}
+              </SyntaxHighlighter>
+              <div className="fileName">Gutenberg Component (register.php)</div>
               <SyntaxHighlighter language="php" style={hybrid}>
                 {zeusGutenbergRegister}
               </SyntaxHighlighter>
