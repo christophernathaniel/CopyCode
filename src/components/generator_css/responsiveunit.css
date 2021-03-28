@@ -3,3 +3,48 @@ input {
   width: auto;
   min-width: 0;
 }
+
+.form-container {
+  position: fixed;
+  left: 0px;
+  width: 300px;
+  background: rgb(29, 31, 33);
+  bottom: 0px;
+  top: 0px;
+  z-index: 98;
+}
+
+.form-container label {
+  display: flex;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.form-container label span {
+  width: 100px;
+  display: block;
+}
+
+.menuButton {
+  position: fixed;
+  z-index: 99;
+  background-color: white;
+  top: 0px;
+}
+
+.results-container {
+  color: #fff;
+  background: rgb(29, 31, 33);
+  position: fixed;
+  right: 0px;
+  width: 300px;
+  top: 0px;
+  bottom: 0px;
+  overflow: hidden;
+  overflow-y: scroll;
+  padding: 20px;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}

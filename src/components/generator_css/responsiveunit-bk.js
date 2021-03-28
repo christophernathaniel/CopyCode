@@ -7,7 +7,6 @@ import "react-tabs/style/react-tabs.css";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { hybrid } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import dedent from "dedent";
-// import Menu from "./menu";
 
 class ResponsiveUnit extends Component {
   constructor(props) {
@@ -23,13 +22,10 @@ class ResponsiveUnit extends Component {
       itemCount: [1],
       unit: "px",
       isloop: false,
-      iscolumn: false,
-      formatter: false
+      iscolumn: false
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
-
-    this.handleInputTextChange = this.handleInputTextChange.bind(this);
 
     this.handleArChange = this.handleArChange.bind(this);
 
@@ -40,18 +36,6 @@ class ResponsiveUnit extends Component {
     this.resizeHandle = this.resizeHandle.bind(this);
 
     this.handleCheckbox = this.handleCheckbox.bind(this);
-
-    this.handleFormatterState = this.handleFormatterState.bind(this);
-  }
-
-  handleFormatterState() {
-    this.setState((state) => ({ formatter: !this.state.formatter }));
-  }
-
-  handleInputTextChange(event) {
-    this.setState((state) => ({
-      [event.target.id]: event.target.value
-    }));
   }
 
   handleInputChange(event) {
@@ -73,6 +57,7 @@ class ResponsiveUnit extends Component {
   handleSubmit(event) {}
 
   handleCheckbox(event) {
+    console.log(event.target);
     this.setState((state) => ({
       [event.target.id]: event.target.checked
     }));
@@ -91,7 +76,14 @@ class ResponsiveUnit extends Component {
     }));
   }
 
+  handleMath(height, width, aspectratio) {
+    console.log(this.state.pxHeightValue * this.state.aspectRatio);
+    console.log(this.state.pxWidthValue * this.state.aspectRatio);
+  }
+
   handleResize(event, data) {
+    console.log(data.size.width);
+    this.handleMath();
     if (data.size.width && data.size.height) {
       this.setState({
         pxWidthValue: parseInt(data.size.width, 10),
@@ -176,17 +168,11 @@ class ResponsiveUnit extends Component {
     return buildString;
   }
 
-  buildZeusCssString(
-    include = {
-      organism: {
-        name: this.state.organismName
-      }
-    }
-  ) {
+  buildZeusCssString() {
     let buildString = "";
 
     // Module Start
-    buildString += dedent(`.` + include.organism.name + ` {  `);
+    buildString += dedent(`.organism-name {  `);
     buildString += `\n`;
 
     // Flex
@@ -248,119 +234,15 @@ class ResponsiveUnit extends Component {
     return buildString;
   }
 
-  buildZeusGutenbergString(
-    include = {
-      organism: {
-        name: this.state.organismName
-      }
-    }
-  ) {
-    let buildString = "";
-    buildString += dedent(
-      `
-    acf_register_block(
-      array(
-          'name' => '` +
-        include.organism.name +
-        `',
-          'title' => __('* ` +
-        include.organism.name +
-        `'),
-          'description' => __('An Example Custom Block'),
-          'render_callback' => [$this, 'block_render_callback'],
-          'category' => 'page-blocks',
-          'icon' => 'admin-comments',
-          'keywords' => array('custom', 'block'),
-      )
-  );`
-    );
-    return buildString;
+  resizeHandle(event, data) {
+    console.log(event);
   }
-
-  resizeHandle(event, data) {}
 
   render() {
     const zeusCssString = this.buildZeusCssString();
     const zeusHtmlString = this.buildZeusHtmlString();
-    const zeusGutenbergRegister = this.buildZeusGutenbergString();
     return (
       <div>
-        <div className="menuButton" onClick={this.handleFormatterState}>
-          Click State
-        </div>
-        {this.state.formatter ? (
-          <div className="form-container">
-            <form className="input">
-              <label className="organismName">
-                <span onClick={() => alert("hello")}>organismName:</span>
-                <input
-                  type="text"
-                  id="organismName"
-                  onChange={this.handleInputTextChange}
-                  value={this.state.organismName}
-                  placeholder="Organism Name"
-                />
-                {this.state.unit}
-              </label>
-              <label className="pxHeight">
-                <span onClick={() => alert("hello")}>height:</span>
-                <input
-                  type="text"
-                  pattern="[0-9]*"
-                  id="pxHeightValue"
-                  onChange={this.handleInputChange}
-                  value={this.state.pxHeightValue}
-                  placeholder="Pixel Height"
-                />
-                {this.state.unit}
-              </label>
-              <label className="pxWidth">
-                <span>Width Value</span>
-                <input
-                  type="text"
-                  pattern="[0-9]*"
-                  id="pxWidthValue"
-                  onChange={this.handleInputChange}
-                  value={this.state.pxWidthValue}
-                  placeholder="Pixel Width"
-                />
-              </label>
-
-              <label className="aspectRatio">
-                <span>Aspect Ratio</span>
-                <input
-                  type="text"
-                  id="aspectRatio"
-                  onChange={this.handleArChange}
-                  value={this.state.aspectRatio}
-                  placeholder="Aspect Ratio"
-                />
-              </label>
-              <label className="isLoop">
-                <span>Is Loop</span>
-                <input
-                  type="checkbox"
-                  id="isloop"
-                  onChange={this.handleCheckbox}
-                  checked={this.state.isloop}
-                  placeholder="isLoop"
-                />
-              </label>
-              <label className="isColumn">
-                <span>Is Column</span>
-                <input
-                  type="checkbox"
-                  id="iscolumn"
-                  onChange={this.handleCheckbox}
-                  checked={this.state.iscolumn}
-                  value={this.state.iscolumn}
-                  placeholder="isColumn"
-                />
-              </label>
-            </form>
-          </div>
-        ) : null}
-
         {this.state.itemCount.map((item) => {
           return (
             <ResizableBox
@@ -379,38 +261,97 @@ class ResponsiveUnit extends Component {
           );
         })}
         {this.state.height}
-        <div className="results-container">
-          <div className="output">{this.state.generated}</div>
-          <Tabs>
-            <TabList>
-              <Tab>Zeus</Tab>
-              <Tab>Wordpress</Tab>
-              <Tab>Vanilla</Tab>
-            </TabList>
-            <TabPanel>
-              <div className="fileName">_{this.state.organismName}.scss</div>
-              <SyntaxHighlighter language="css" style={hybrid}>
-                {zeusCssString}
-              </SyntaxHighlighter>
-              <div className="fileName">{this.state.organismName}.twig</div>
-              <SyntaxHighlighter language="javascript" style={hybrid}>
-                {zeusHtmlString}
-              </SyntaxHighlighter>
-              <div className="fileName">{this.state.organismName}.php</div>
-              <div className="fileName">Gutenberg Component</div>
-              <SyntaxHighlighter language="php" style={hybrid}>
-                {zeusGutenbergRegister}
-              </SyntaxHighlighter>
-            </TabPanel>
-            <TabPanel>Wordpress</TabPanel>
-            <TabPanel>
-              <pre>
-                <code>height: 200px;</code>
-                <code>width: 200px;</code>
-              </pre>
-            </TabPanel>
-          </Tabs>
-        </div>
+        <form className="input">
+          <label className="pxHeight">
+            <span onClick={() => alert("hello")}>height:</span>
+            <input
+              type="text"
+              pattern="[0-9]*"
+              id="pxHeightValue"
+              onChange={this.handleInputChange}
+              value={this.state.pxHeightValue}
+              placeholder="Pixel Height"
+            />
+            {/* <ContentEditable
+              id="pxHeight"
+              innerRef={this.contentEditable}
+              html={this.state.pxHeightValue} // innerHTML of the editable div
+              disabled={false} // use true to disable editing
+              onChange={this.handleChange} // handle innerHTML change
+              tagName="article" // Use a custom HTML tag (uses a div by default)
+            /> */}
+            {this.state.unit}
+          </label>
+
+          <label className="pxWidth">
+            <span>Width Value</span>
+            <input
+              type="text"
+              pattern="[0-9]*"
+              id="pxWidthValue"
+              onChange={this.handleInputChange}
+              value={this.state.pxWidthValue}
+              placeholder="Pixel Width"
+            />
+          </label>
+
+          <label className="aspectRatio">
+            <span>Aspect Ratio</span>
+            <input
+              type="text"
+              id="aspectRatio"
+              onChange={this.handleArChange}
+              value={this.state.aspectRatio}
+              placeholder="Aspect Ratio"
+            />
+          </label>
+          <label className="isLoop">
+            <span>Is Loop</span>
+            <input
+              type="checkbox"
+              id="isloop"
+              onChange={this.handleCheckbox}
+              value={this.state.isloop}
+              placeholder="isLoop"
+            />
+          </label>
+
+          <label className="isColumn">
+            <span>Is Column</span>
+            <input
+              type="checkbox"
+              id="iscolumn"
+              onChange={this.handleCheckbox}
+              value={this.state.iscolumn}
+              placeholder="isColumn"
+            />
+          </label>
+        </form>
+        <div className="output">{this.state.generated}</div>
+        <Tabs>
+          <TabList>
+            <Tab>Zeus</Tab>
+            <Tab>Wordpress</Tab>
+            <Tab>Vanilla</Tab>
+          </TabList>
+          <TabPanel>
+            CSS --
+            <SyntaxHighlighter language="javascript" style={hybrid}>
+              {zeusCssString}
+            </SyntaxHighlighter>
+            Timber --
+            <SyntaxHighlighter language="javascript" style={hybrid}>
+              {zeusHtmlString}
+            </SyntaxHighlighter>
+          </TabPanel>
+          <TabPanel>Wordpress</TabPanel>
+          <TabPanel>
+            <pre>
+              <code>height: 200px;</code>
+              <code>width: 200px;</code>
+            </pre>
+          </TabPanel>
+        </Tabs>
       </div>
     );
   }
