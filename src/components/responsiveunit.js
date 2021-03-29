@@ -1,10 +1,7 @@
 import "./responsiveunit.css";
 import React, { Component } from "react";
 
-import ZeusCss from "./zeus/zeusCss.js";
-import ZeusJs from "./zeus/zeusJs.js";
-import ZeusTimber from "./zeus/zeusTimber.js";
-import ZeusPhp from "./zeus/zeusPhp.js";
+import ZeusCodeblock from "./zeus/zeusCodeblock.js";
 
 import { Resizable, ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
@@ -638,50 +635,56 @@ class ResponsiveUnit extends Component {
               <Tab>Vanilla</Tab>
             </TabList>
             <TabPanel>
-              <ZeusCss
-                key={this.state.organismName}
+              <ZeusCodeblock
+                key={1}
                 organismName={this.state.organismName}
-                stringName={zeusCssString}
+                renderLang={"css"}
+                importName={
+                  "@import 'organisms/" + this.state.organismName + "'"
+                }
+                fileName={this.state.organismName + ".scss"}
+                stringData={zeusCssString}
               />
-              <SyntaxHighlighter language="css" style={hybrid}>
-                {zeusCssString}
-              </SyntaxHighlighter>
-              <div className="titleContainer">
-                <div className="importName">
-                  views/organisms/{this.state.organismName}.twig
-                </div>
-                <div className="fileName">{this.state.organismName}.twig</div>
-              </div>
-              <SyntaxHighlighter language="javascript" style={hybrid}>
-                {zeusHtmlString}
-              </SyntaxHighlighter>
-              <div className="titleContainer">
-                <div className="importName">
-                  templates/organisms/{this.state.organismName}.php
-                </div>
-                <div className="fileName">{this.state.organismName}.php</div>
-              </div>
-              <SyntaxHighlighter language="php" style={hybrid}>
-                {zeusPHPString}
-              </SyntaxHighlighter>
-              <div className="titleContainer">
-                <div className="importName">
-                  templates/register/register.php
-                </div>
-                <div className="fileName">
-                  Gutenberg Component (register.php)
-                </div>
-              </div>
-              <SyntaxHighlighter language="php" style={hybrid}>
-                {zeusGutenbergRegister}
-              </SyntaxHighlighter>
-              <div className="titleContainer">
-                <div className="importName">@import 'fonts/_fonts.scss';</div>
-                <div className="fileName">Render Fonts</div>
-              </div>
-              <SyntaxHighlighter language="css" style={hybrid}>
-                {zeusFontString}
-              </SyntaxHighlighter>
+
+              <ZeusCodeblock
+                key={2}
+                organismName={this.state.organismName}
+                renderLang={"html"}
+                importName={
+                  "views/organisms/" + this.state.organismName + ".twig"
+                }
+                fileName={this.state.organismName + ".twig"}
+                stringData={zeusHtmlString}
+              />
+
+              <ZeusCodeblock
+                key={3}
+                organismName={this.state.organismName}
+                renderLang={"php"}
+                importName={
+                  "templates/organisms/" + this.state.organismName + ".php"
+                }
+                fileName={this.state.organismName + ".php"}
+                stringData={zeusPHPString}
+              />
+
+              <ZeusCodeblock
+                key={4}
+                organismName={this.state.organismName}
+                renderLang={"php"}
+                importName={"templates/register/register.php"}
+                fileName={"register.php"}
+                stringData={zeusGutenbergRegister}
+              />
+
+              <ZeusCodeblock
+                key={5}
+                organismName={this.state.organismName}
+                renderLang={"css"}
+                importName={"@import 'fonts/_fonts.scss'"}
+                fileName={"Render Fonts"}
+                stringData={zeusFontString}
+              />
             </TabPanel>
             <TabPanel>Wordpress</TabPanel>
             <TabPanel>
