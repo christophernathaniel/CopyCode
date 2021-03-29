@@ -16,7 +16,11 @@ class ResponsiveUnit extends Component {
   constructor(props) {
     super(props);
 
-    this.state = this.props.settings;
+    this.state = {
+      settings: this.props.settings,
+      inputfields: [1, 2, 3]
+    };
+
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleInputTextChange = this.handleInputTextChange.bind(this);
     this.handleArChange = this.handleArChange.bind(this);
@@ -28,27 +32,30 @@ class ResponsiveUnit extends Component {
   }
 
   handleFormatterState() {
-    this.setState((state) => ({ formatter: !this.state.formatter }));
+
+    this.handleSettingsChange("formatter", !this.state.settings.formatter);
+  }
+
+  // State Loop Logic - Replace Settings Variable
+  handleSettingsChange(name, value) {
+    this.setState((prevState) => {
+      let settings = Object.assign({}, prevState.settings); // creating copy of state variable jasper
+      settings.[name] = value; // update the name property, assign a new value
+      return { settings }; // return new object jasper object
+    });
   }
 
   handleInputTextChange(event) {
-    this.setState((state) => ({
-      [event.target.id]: event.target.value
-    }));
+    this.handleSettingsChange([event.target.id], event.target.value);
   }
 
   handleInputChange(event) {
     if (isNaN(event.target.value) || event.target.value <= 1) {
-      this.setState((state) => ({
-        [event.target.id]: 1
-      }));
+      this.handleSettingsChange([event.target.id], 1);
       return true;
     }
-
     if (event.target.id) {
-      this.setState((state) => ({
-        [event.target.id]: parseInt(event.target.value, 10)
-      }));
+      this.handleSettingsChange([event.target.id], parseInt(event.target.value, 10));
       return true;
     }
   }
@@ -56,30 +63,22 @@ class ResponsiveUnit extends Component {
   handleSubmit(event) {}
 
   handleCheckbox(event) {
-    this.setState((state) => ({
-      [event.target.id]: event.target.checked
-    }));
+    this.handleSettingsChange([event.target.id], event.target.checked);
   }
 
   handleArChange(event) {
     if (isNaN(event.target.value) || event.target.value <= 0) {
-      this.setState((state) => ({
-        [event.target.id]: 0
-      }));
+      this.handleSettingsChange([event.target.id], 0);
       return true;
     }
 
-    this.setState((state) => ({
-      [event.target.id]: event.target.value
-    }));
+    this.handleSettingsChange([event.target.id], event.target.value);
   }
 
   handleResize(event, data) {
     if (data.size.width && data.size.height) {
-      this.setState({
-        pxWidthValue: parseInt(data.size.width, 10),
-        pxHeightValue: parseInt(data.size.height, 10)
-      });
+      this.handleSettingsChange("pxWidthValue",  parseInt(data.size.width, 10));
+      this.handleSettingsChange("pxHeightValue",  parseInt(data.size.height, 10));
     }
   }
 
@@ -90,10 +89,10 @@ class ResponsiveUnit extends Component {
   buildZeusHtmlString(
     include = {
       organism: {
-        name: this.state.organismName
+        name: this.state.settings.organismName
       },
       loop: {
-        status: this.state.isloop,
+        status: this.state.settings.isloop,
         start: "\n{% if loops %}",
         end: "\n{% endif %}",
         forstart: "\n{% for loop in loops %}",
@@ -101,39 +100,39 @@ class ResponsiveUnit extends Component {
         forend: "\n{% endfor %}"
       },
       columns: {
-        status: this.state.iscolumn,
+        status: this.state.settings.iscolumn,
         start: `\n<div class="wp-block-columns columns">`,
         end: `\n</div>`,
         singlestart: `\n <div class="wp-block column">`,
         singleend: `\n </div>`
       },
       button: {
-        status: this.state.hasbutton,
+        status: this.state.settings.hasbutton,
         // code: `<span class="atom-button">
         //     <a class="button" href="#"></a>
         // </span>`
         code: `{% include 'atoms/button.twig' %}`
       },
       title: {
-        status: this.state.hastitle,
+        status: this.state.settings.hastitle,
         code:
           `{% include 'atoms/text.twig' with { 'font' : 'font` +
-          this.state.titlesize +
+          this.state.settings.titlesize +
           ` document-title-font', 'content' : 'Title Text' } %}`
       },
       text: {
-        status: this.state.hastext,
+        status: this.state.settings.hastext,
         code:
           `{% include 'atoms/text.twig' with { 'font' : 'font` +
-          this.state.fontsize +
+          this.state.settings.fontsize +
           ` document-text-font', 'content' : 'Content Text' } %}`
       },
       image: {
-        status: this.state.hasimage,
+        status: this.state.settings.hasimage,
         code: `{% include 'atoms/image.twig' %}`
       },
       form: {
-        status: this.state.hasform,
+        status: this.state.settings.hasform,
         code: `{% include "/atoms/gform.twig"  %}`
       }
     }
@@ -195,10 +194,10 @@ class ResponsiveUnit extends Component {
   buildZeusCssString(
     include = {
       organism: {
-        name: this.state.organismName
+        name: this.state.settings.organismName
       },
       button: {
-        status: this.state.hasbutton,
+        status: this.state.settings.hasbutton,
         code: `
         a { 
           color: $blue;
@@ -209,7 +208,7 @@ class ResponsiveUnit extends Component {
         }`
       },
       hasimagetextoverlay: {
-        status: this.state.hasimagetextoverlay,
+        status: this.state.settings.hasimagetextoverlay,
         code: `
         .text-overlay {
           position: absolute;
@@ -249,18 +248,18 @@ class ResponsiveUnit extends Component {
     // Responsive Units
     buildString += dedent(
       `responsiveUnit('Width', ` +
-        this.state.pxWidthValue +
+        this.state.settings.pxWidthValue +
         `px, ` +
-        this.state.pxWidthValue +
+        this.state.settings.pxWidthValue +
         `px, ` +
-        this.state.pxWidthValue +
+        this.state.settings.pxWidthValue +
         `px);
         responsiveUnit('Height', ` +
-        this.state.pxHeightValue +
+        this.state.settings.pxHeightValue +
         `px, ` +
-        this.state.pxHeightValue +
+        this.state.settings.pxHeightValue +
         `px, ` +
-        this.state.pxHeightValue +
+        this.state.settings.pxHeightValue +
         `px); 
        `
     );
@@ -270,10 +269,10 @@ class ResponsiveUnit extends Component {
       `
       @include sm-down() { 
         height: ` +
-        this.state.pxHeightValue +
+        this.state.settings.pxHeightValue +
         `px;
         Width: ` +
-        this.state.pxWidthValue +
+        this.state.settings.pxWidthValue +
         `px;
       }
     `
@@ -310,24 +309,24 @@ class ResponsiveUnit extends Component {
   buildZeusPhpString(
     include = {
       organism: {
-        name: this.state.organismName
+        name: this.state.settings.organismName
       },
       image: {
-        status: this.state.hasimage,
+        status: this.state.settings.hasimage,
         code: `
       if ($context['fields']['image']) {
         $context['classList'] .= ' dark-block';
       }`
       },
       button: {
-        status: this.state.hasbutton,
+        status: this.state.settings.hasbutton,
         code: `
       if ($context['fields']['image'] && $context['fields']['link']) {
         $context['classList'] .= ' inherit-link';
       }`
       },
       hasimagetextoverlay: {
-        status: this.state.hasimagetextoverlay
+        status: this.state.settings.hasimagetextoverlay
       }
     }
   ) {
@@ -355,7 +354,7 @@ class ResponsiveUnit extends Component {
   buildZeusGutenbergString(
     include = {
       organism: {
-        name: this.state.organismName
+        name: this.state.settings.organismName
       }
     }
   ) {
@@ -384,36 +383,36 @@ class ResponsiveUnit extends Component {
   buildZeusFontString(
     include = {
       organism: {
-        name: this.state.organismName
+        name: this.state.settings.organismName
       },
       title: {
-        status: this.state.hastitle,
+        status: this.state.settings.hastitle,
         code:
           `.font` +
-          this.state.titlesize +
+          this.state.settings.titlesize +
           ` {
           @include font-size(` +
-          this.state.titlesize +
+          this.state.settings.titlesize +
           `px, 38px, ` +
-          this.state.titlesize +
+          this.state.settings.titlesize +
           `px, ` +
-          this.state.titlesize +
+          this.state.settings.titlesize +
           `px, 1.2); // 14px
           display: inline-block;
       };`
       },
       text: {
-        status: this.state.hastext,
+        status: this.state.settings.hastext,
         code:
           `.font` +
-          this.state.fontsize +
+          this.state.settings.fontsize +
           ` {
           @include font-size(` +
-          this.state.fontsize +
+          this.state.settings.fontsize +
           `px, 38px, ` +
-          this.state.fontsize +
+          this.state.settings.fontsize +
           `px, ` +
-          this.state.fontsize +
+          this.state.settings.fontsize +
           `px, 1.2); // 14px
           display: inline-block;
       };`
@@ -449,7 +448,7 @@ class ResponsiveUnit extends Component {
         <div className="menuButton" onClick={this.handleFormatterState}>
           Click State
         </div>
-        {this.state.formatter ? (
+        {this.state.settings.formatter ? (
           <div className="form-container">
             <form className="input">
               <label className="organismName">
@@ -458,10 +457,10 @@ class ResponsiveUnit extends Component {
                   type="text"
                   id="organismName"
                   onChange={this.handleInputTextChange}
-                  value={this.state.organismName}
+                  value={this.state.settings.organismName}
                   placeholder="Organism Name"
                 />
-                {this.state.unit}
+                {this.state.settings.unit}
               </label>
               <label className="pxHeight">
                 <span onClick={() => alert("hello")}>height:</span>
@@ -470,7 +469,7 @@ class ResponsiveUnit extends Component {
                   pattern="[0-9]*"
                   id="pxHeightValue"
                   onChange={this.handleInputChange}
-                  value={this.state.pxHeightValue}
+                  value={this.state.settings.pxHeightValue}
                   placeholder="Pixel Height"
                 />
                 {this.state.unit}
@@ -482,7 +481,7 @@ class ResponsiveUnit extends Component {
                   pattern="[0-9]*"
                   id="pxWidthValue"
                   onChange={this.handleInputChange}
-                  value={this.state.pxWidthValue}
+                  value={this.state.settings.pxWidthValue}
                   placeholder="Pixel Width"
                 />
               </label>
@@ -493,7 +492,7 @@ class ResponsiveUnit extends Component {
                   type="text"
                   id="aspectRatio"
                   onChange={this.handleArChange}
-                  value={this.state.aspectRatio}
+                  value={this.state.settings.aspectRatio}
                   placeholder="Aspect Ratio"
                 />
               </label>
@@ -503,7 +502,7 @@ class ResponsiveUnit extends Component {
                   type="text"
                   id="titlesize"
                   onChange={this.handleInputChange}
-                  value={this.state.titlesize}
+                  value={this.state.settings.titlesize}
                   placeholder="Title Size"
                 />
               </label>
@@ -513,7 +512,7 @@ class ResponsiveUnit extends Component {
                   type="text"
                   id="fontsize"
                   onChange={this.handleInputChange}
-                  value={this.state.fontsize}
+                  value={this.state.settings.fontsize}
                   placeholder="Font Size"
                 />
               </label>
@@ -523,7 +522,7 @@ class ResponsiveUnit extends Component {
                   type="checkbox"
                   id="isloop"
                   onChange={this.handleCheckbox}
-                  checked={this.state.isloop}
+                  checked={this.state.settings.isloop}
                   placeholder="isLoop"
                 />
               </label>
@@ -533,8 +532,8 @@ class ResponsiveUnit extends Component {
                   type="checkbox"
                   id="iscolumn"
                   onChange={this.handleCheckbox}
-                  checked={this.state.iscolumn}
-                  value={this.state.iscolumn}
+                  checked={this.state.settings.iscolumn}
+                  value={this.state.settings.iscolumn}
                   placeholder="isColumn"
                 />
               </label>
@@ -544,8 +543,8 @@ class ResponsiveUnit extends Component {
                   type="checkbox"
                   id="hastitle"
                   onChange={this.handleCheckbox}
-                  checked={this.state.hastitle}
-                  value={this.state.hastitle}
+                  checked={this.state.settings.hastitle}
+                  value={this.state.settings.hastitle}
                   placeholder="hastitle"
                 />
               </label>
@@ -555,8 +554,8 @@ class ResponsiveUnit extends Component {
                   type="checkbox"
                   id="hastext"
                   onChange={this.handleCheckbox}
-                  checked={this.state.hastext}
-                  value={this.state.hastext}
+                  checked={this.state.settings.hastext}
+                  value={this.state.settings.hastext}
                   placeholder="hastext"
                 />
               </label>
@@ -566,8 +565,8 @@ class ResponsiveUnit extends Component {
                   type="checkbox"
                   id="hasbutton"
                   onChange={this.handleCheckbox}
-                  checked={this.state.hasbutton}
-                  value={this.state.hasbutton}
+                  checked={this.state.settings.hasbutton}
+                  value={this.state.settings.hasbutton}
                   placeholder="hasbutton"
                 />
               </label>
@@ -577,8 +576,8 @@ class ResponsiveUnit extends Component {
                   type="checkbox"
                   id="hasimage"
                   onChange={this.handleCheckbox}
-                  checked={this.state.hasimage}
-                  value={this.state.hasimage}
+                  checked={this.state.settings.hasimage}
+                  value={this.state.settings.hasimage}
                   placeholder="hasimage"
                 />
               </label>
@@ -588,8 +587,8 @@ class ResponsiveUnit extends Component {
                   type="checkbox"
                   id="hasimagetextoverlay"
                   onChange={this.handleCheckbox}
-                  checked={this.state.hasimagetextoverlay}
-                  value={this.state.hasimagetextoverlay}
+                  checked={this.state.settings.hasimagetextoverlay}
+                  value={this.state.settings.hasimagetextoverlay}
                   placeholder="hasimagetextoverlay"
                 />
               </label>
@@ -599,8 +598,8 @@ class ResponsiveUnit extends Component {
                   type="checkbox"
                   id="hasform"
                   onChange={this.handleCheckbox}
-                  checked={this.state.hasform}
-                  value={this.state.hasform}
+                  checked={this.state.settings.hasform}
+                  value={this.state.settings.hasform}
                   placeholder="hasform"
                 />
               </label>
@@ -608,26 +607,25 @@ class ResponsiveUnit extends Component {
           </div>
         ) : null}
 
-        {this.state.itemCount.map((item) => {
+        {this.state.settings.itemCount.map((item) => {
           return (
             <ResizableBox
               id={item}
               key="{item}"
-              width={this.state.pxWidthValue}
-              height={this.state.pxHeightValue}
+              width={this.state.settings.pxWidthValue}
+              height={this.state.settings.pxHeightValue}
               onResize={this.handleResize}
             >
               <div>
-                {this.state.pxWidthValue}
-                {this.state.unit} x {this.state.pxHeightValue}
-                {this.state.unit}
+                {this.state.settings.pxWidthValue}
+                {this.state.settings.unit} x {this.state.settings.pxHeightValue}
+                {this.state.settings.unit}
               </div>
             </ResizableBox>
           );
         })}
-        {this.state.height}
+
         <div className="results-container">
-          <div className="output">{this.state.generated}</div>
           <Tabs>
             <TabList>
               <Tab>Zeus</Tab>
@@ -637,40 +635,44 @@ class ResponsiveUnit extends Component {
             <TabPanel>
               <ZeusCodeblock
                 key={1}
-                organismName={this.state.organismName}
+                organismName={this.state.settings.organismName}
                 renderLang={"css"}
                 importName={
-                  "@import 'organisms/" + this.state.organismName + "'"
+                  "@import 'organisms/" + this.state.settings.organismName + "'"
                 }
-                fileName={this.state.organismName + ".scss"}
+                fileName={this.state.settings.organismName + ".scss"}
                 stringData={zeusCssString}
               />
 
               <ZeusCodeblock
                 key={2}
-                organismName={this.state.organismName}
+                organismName={this.state.settings.organismName}
                 renderLang={"html"}
                 importName={
-                  "views/organisms/" + this.state.organismName + ".twig"
+                  "views/organisms/" +
+                  this.state.settings.organismName +
+                  ".twig"
                 }
-                fileName={this.state.organismName + ".twig"}
+                fileName={this.state.settings.organismName + ".twig"}
                 stringData={zeusHtmlString}
               />
 
               <ZeusCodeblock
                 key={3}
-                organismName={this.state.organismName}
+                organismName={this.state.settings.organismName}
                 renderLang={"php"}
                 importName={
-                  "templates/organisms/" + this.state.organismName + ".php"
+                  "templates/organisms/" +
+                  this.state.settings.organismName +
+                  ".php"
                 }
-                fileName={this.state.organismName + ".php"}
+                fileName={this.state.settings.organismName + ".php"}
                 stringData={zeusPHPString}
               />
 
               <ZeusCodeblock
                 key={4}
-                organismName={this.state.organismName}
+                organismName={this.state.settings.organismName}
                 renderLang={"php"}
                 importName={"templates/register/register.php"}
                 fileName={"register.php"}
@@ -679,7 +681,7 @@ class ResponsiveUnit extends Component {
 
               <ZeusCodeblock
                 key={5}
-                organismName={this.state.organismName}
+                organismName={this.state.settings.organismName}
                 renderLang={"css"}
                 importName={"@import 'fonts/_fonts.scss'"}
                 fileName={"Render Fonts"}
@@ -687,12 +689,7 @@ class ResponsiveUnit extends Component {
               />
             </TabPanel>
             <TabPanel>Wordpress</TabPanel>
-            <TabPanel>
-              <pre>
-                <code>height: 200px;</code>
-                <code>width: 200px;</code>
-              </pre>
-            </TabPanel>
+            <TabPanel>Vanilla</TabPanel>
           </Tabs>
         </div>
       </div>
