@@ -1,5 +1,11 @@
 import "./responsiveunit.css";
 import React, { Component } from "react";
+
+import ZeusCss from "./zeus/zeusCss.js";
+import ZeusJs from "./zeus/zeusJs.js";
+import ZeusTimber from "./zeus/zeusTimber.js";
+import ZeusPhp from "./zeus/zeusPhp.js";
+
 import { Resizable, ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
@@ -13,42 +19,14 @@ class ResponsiveUnit extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      pxHeightValue: 200,
-      pxWidthValue: 200,
-      pxMobileHeightValue: 200,
-      pxMobileWidthValue: 200,
-      organismName: "organism-name",
-      aspectRatio: 1,
-      itemCount: [1],
-      unit: "px",
-      isloop: false,
-      iscolumn: false,
-      titlesize: 50,
-      fontsize: 18,
-      hassubtitle: true,
-      hastitle: true,
-      hastext: true,
-      hasform: false,
-      hasimage: true,
-      hasimagetextoverlay: false,
-      formatter: false
-    };
-
+    this.state = this.props.settings;
     this.handleInputChange = this.handleInputChange.bind(this);
-
     this.handleInputTextChange = this.handleInputTextChange.bind(this);
-
     this.handleArChange = this.handleArChange.bind(this);
-
     this.handleInputSubmit = this.handleSubmit.bind(this);
-
     this.handleResize = this.handleResize.bind(this);
-
     this.resizeHandle = this.resizeHandle.bind(this);
-
     this.handleCheckbox = this.handleCheckbox.bind(this);
-
     this.handleFormatterState = this.handleFormatterState.bind(this);
   }
 
@@ -660,12 +638,11 @@ class ResponsiveUnit extends Component {
               <Tab>Vanilla</Tab>
             </TabList>
             <TabPanel>
-              <div className="titleContainer">
-                <div className="importName">
-                  @import 'organisms/{this.state.organismName}';
-                </div>
-                <div className="fileName">_{this.state.organismName}.scss</div>
-              </div>
+              <ZeusCss
+                key={this.state.organismName}
+                organismName={this.state.organismName}
+                stringName={zeusCssString}
+              />
               <SyntaxHighlighter language="css" style={hybrid}>
                 {zeusCssString}
               </SyntaxHighlighter>
