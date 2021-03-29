@@ -1,14 +1,12 @@
 import "./responsiveunit.css";
 import React, { Component } from "react";
-
 import ZeusCodeblock from "./zeus/zeusCodeblock.js";
 
 import { Resizable, ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { hybrid } from "react-syntax-highlighter/dist/esm/styles/hljs";
+
 import dedent from "dedent";
 // import Menu from "./menu";
 
@@ -18,7 +16,23 @@ class ResponsiveUnit extends Component {
 
     this.state = {
       settings: this.props.settings,
-      inputfields: [1, 2, 3]
+      buildInput: [
+        { name: 'organismName', type: 'input', changeListener: 'handleInputTextChange'}, 
+        { name: 'pxHeightValue', type: 'input', changeListener: 'handleInputChange' },
+        { name: 'pxWidthValue', type: 'input', changeListener: 'handleInputChange' },
+        { name: 'aspectRatio', type: 'input', changeListener: 'handleArChange' },
+        { name: 'titlesize', type: 'input', changeListener: 'handleInputChange' },
+        { name: 'fontsize', type: 'input', changeListener: 'handleInputChange' },
+        { name: 'isloop', type: 'checkbox', changeListener: 'handleCheckbox' },
+        { name: 'iscolumn', type: 'checkbox', changeListener: 'handleCheckbox' },
+        { name: 'iscolumn', type: 'checkbox', changeListener: 'handleCheckbox' },
+        { name: 'hastitle', type: 'checkbox', changeListener: 'handleCheckbox' },
+        { name: 'hastext', type: 'checkbox', changeListener: 'handleCheckbox' },
+        { name: 'hasbutton', type: 'checkbox', changeListener: 'handleCheckbox' },
+        { name: 'hasimage', type: 'checkbox', changeListener: 'handleCheckbox' },
+        { name: 'hasimagetextoverlay', type: 'checkbox', changeListener: 'handleCheckbox' },
+        { name: 'hasform', type: 'checkbox', changeListener: 'handleCheckbox' },
+      ]
     };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -448,6 +462,8 @@ class ResponsiveUnit extends Component {
         <div className="menuButton" onClick={this.handleFormatterState}>
           Click State
         </div>
+
+
         {this.state.settings.formatter ? (
           <div className="form-container">
             <form className="input">
@@ -606,6 +622,11 @@ class ResponsiveUnit extends Component {
             </form>
           </div>
         ) : null}
+
+
+        {this.state.buildInput.map((item) => {
+
+        })};
 
         {this.state.settings.itemCount.map((item) => {
           return (
